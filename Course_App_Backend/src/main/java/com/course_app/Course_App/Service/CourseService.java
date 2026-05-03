@@ -7,7 +7,12 @@ import com.course_app.Course_App.Entity.CourseEntity;
 public interface CourseService {
     public List<CourseEntity> getCourses();
 
-    public String addCourse(CourseEntity course);
+    public CourseEntity addCourse(CourseEntity course);
 
     public String deleteCourse(Long id);
+
+    public CourseEntity getCourse(Long id);
+
+    public CourseEntity updateCourse(Long id, CourseEntity course);
+
 }
