@@ -9,10 +9,11 @@ public interface CourseService {
 
     public CourseEntity addCourse(CourseEntity course);
 
-    public String deleteCourse(Long id);
+    public void deleteCourse(Long id);
 
     public CourseEntity getCourse(Long id);
 
     public CourseEntity updateCourse(Long id, CourseEntity course);
 
+    public List<CourseEntity> searchCourses(String query);
 }

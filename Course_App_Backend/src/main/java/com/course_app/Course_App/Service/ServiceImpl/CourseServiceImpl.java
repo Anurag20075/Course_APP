@@ -32,11 +32,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public String deleteCourse(Long id) {
+    public void deleteCourse(Long id) {
         CourseEntity course = courseRepo.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException(id));
         courseRepo.delete(course);
-        return "Course deleted successfully";
     }
 
     @Override
@@ -73,4 +72,13 @@ public class CourseServiceImpl implements CourseService {
 
         return courseRepo.save(existingCourse);
     }
+
+    @Override
+    public List<CourseEntity> searchCourses(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return courseRepo.findAll();
+        }
+        return courseRepo.searchCoursesbykeyword(keyword);
+    }
+
 }
