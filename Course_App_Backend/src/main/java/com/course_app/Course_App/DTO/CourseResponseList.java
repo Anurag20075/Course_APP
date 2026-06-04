@@ -1,4 +1,4 @@
-package com.course_app.Course_App.DTO.Response;
+package com.course_app.Course_App.DTO;
 
 import java.util.List;
 

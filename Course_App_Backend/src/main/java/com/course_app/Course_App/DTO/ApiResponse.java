@@ -1,4 +1,4 @@
-package com.course_app.Course_App.DTO.Common;
+package com.course_app.Course_App.DTO;
 
 import java.time.LocalDateTime;
 

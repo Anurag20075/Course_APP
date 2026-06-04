@@ -3,7 +3,7 @@ import { Navbar } from './components/Navbar'
 import Footer from './components/Footer'
 import AboutPage from './components/About'
 import BlogPage from './components/Blog'
-import SimpleForm from './components/Form'
+// import SimpleForm from './components/Form'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 function App() {
@@ -12,10 +12,10 @@ function App() {
       <Navbar />
       <main>
         <Routes>
-          {/* <Route path="/" element={<HomePage />} />
+          {/* <Route path="/" element={<HomePage />} /> */}
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/blog" element={<BlogPage />} /> */}
-          <Route path="/" element={<SimpleForm />} />
+          <Route path="/blog" element={<BlogPage />} />
+          {/* <Route path="/" element={<SimpleForm />} /> */}
 
         </Routes>
       </main>

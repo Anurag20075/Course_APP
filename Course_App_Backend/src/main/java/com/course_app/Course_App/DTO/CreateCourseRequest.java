@@ -1,4 +1,4 @@
-package com.course_app.Course_App.DTO.Request;
+package com.course_app.Course_App.DTO;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
