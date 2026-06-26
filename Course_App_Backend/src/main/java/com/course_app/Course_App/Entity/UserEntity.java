@@ -11,8 +11,12 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String username;
+    @Column(unique = true, nullable = false)
+    private String email;
     private String password;
     private String role; // e.g., "ADMIN", "USER"
+    // @Column(unique= true, nullable=false)
+
+    // private String username;
+
 }

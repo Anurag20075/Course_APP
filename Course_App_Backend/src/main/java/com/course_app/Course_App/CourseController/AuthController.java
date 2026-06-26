@@ -1,6 +1,8 @@
 package com.course_app.Course_App.CourseController;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +16,7 @@ import com.course_app.Course_App.DTO.AuthRequest;
 import com.course_app.Course_App.Entity.UserEntity;
 import com.course_app.Course_App.Repo.UserRepository;
 import com.course_app.Course_App.Service.MyUserDetailsService;
+import com.course_app.Course_App.exception.EmailAlreadyExistsException;
 import com.course_app.Course_App.utils.JwtUtils;
 
 @RestController
@@ -38,23 +41,22 @@ public class AuthController {
     // 1. Login Endpoint
     @PostMapping("/login")
     public String login(@RequestBody AuthRequest authRequest) {
-        // Authenticate user
+        // Authenticate user using email instead of username
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
 
-        // Generate JWT token
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
+        // Generate JWT token using email
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getEmail());
         return jwtUtils.generateToken(userDetails);
     }
 
     // 2. Signup Endpoint (Register New User)
     @PostMapping("/signup")
-    public String registerUser(@RequestBody UserEntity user) {
+    public ResponseEntity<String> registerUser(@RequestBody UserEntity user) {
         // Check if user already exists
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return "User already exists!";
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new EmailAlreadyExistsException(user.getEmail());
         }
-
         // Encode the plain text password
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -65,6 +67,7 @@ public class AuthController {
         // Save user to database
         userRepository.save(user);
 
-        return "User registered successfully!";
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("User registered successfully!");
     }
 }

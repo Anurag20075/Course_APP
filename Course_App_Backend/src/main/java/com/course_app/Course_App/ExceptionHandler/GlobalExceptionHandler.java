@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.course_app.Course_App.exception.CourseNotFoundException;
 import com.course_app.Course_App.exception.DuplicateResourceException;
+import com.course_app.Course_App.exception.EmailAlreadyExistsException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -40,4 +41,12 @@ public class GlobalExceptionHandler {
                 ex.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now(),
+            HttpStatus.CONFLICT.value(), // 409 Conflict is ideal for duplicate unique fields like emails
+            ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+}
 }
