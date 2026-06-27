@@ -30,9 +30,7 @@ public class SecurityConfig {
 
     @Autowired
     private UserDetailsService userDetailsService;
-    // private final JwtAuthFilter jwtAuthFilter;
 
-    // Using Constructor Injection instead of @Autowired on fields
     public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
         this.userDetailsService = userDetailsService;
         this.jwtAuthFilter = jwtAuthFilter;
@@ -41,15 +39,31 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Modern syntax for disabling CSRF
-                .cors(Customizer.withDefaults()) // Enables CORS (useful if your frontend is on a different port)
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Public auth endpoints
-                        .requestMatchers(HttpMethod.GET, "/courses/**").permitAll() // Public read access
-                        .anyRequest().authenticated() // Protect everything else
-                )
+                        // Public endpoints
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/courses/**").permitAll()
+
+                        // 1. STUDENT Restrictions
+                        .requestMatchers("/courses/enroll/**").hasRole("STUDENT")
+                        .requestMatchers("/my-learning/**").hasRole("STUDENT")
+
+                        // 2. INSTRUCTOR Restrictions (Admin can also manage courses)
+                        .requestMatchers(HttpMethod.POST, "/courses/**").hasAnyRole("INSTRUCTOR",
+                                "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/courses/**").hasAnyRole("INSTRUCTOR",
+                                "ADMIN")
+
+                        // 3. ADMIN Only Restrictions
+                        .requestMatchers(HttpMethod.DELETE, "/courses/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Any other generic request must be authenticated
+                        .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -63,7 +77,6 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // This bean is vital for your LoginController to authenticate users
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -74,4 +87,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-

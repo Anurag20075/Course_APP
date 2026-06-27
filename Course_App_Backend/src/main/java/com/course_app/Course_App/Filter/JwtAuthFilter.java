@@ -37,25 +37,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         final String jwtToken;
         final String userName;
 
-        // Check if header contains JWT token
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extract token
-        jwtToken = authHeader.substring(7); // Remove "Bearer "
+        jwtToken = authHeader.substring(7);
         try {
-            // Extract username from token
+
             userName = jwtUtils.extractUsername(jwtToken);
 
-            // Validate token and check if user is already authenticated
             if (userName != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 
                 if (jwtUtils.validateToken(jwtToken, userDetails)) {
-                    // Create authentication token
+
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -63,23 +60,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    // Set authentication in context
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (ExpiredJwtException e) {
-            // Handle expired token
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Token expired: " + e.getMessage());
             return;
         } catch (Exception e) {
-            // Handle other token errors
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid token: " + e.getMessage());
             return;
         }
 
-        // Continue filter chain
         filterChain.doFilter(request, response);
     }
 }
